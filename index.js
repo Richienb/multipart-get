@@ -1,9 +1,64 @@
 "use strict"
+const os = require("os")
+const got = require("got")
+const pMap = require("p-map")
+const totalled = require("totalled")
+const pEvent = require("p-event")
+const getStream = require("get-stream")
+const { fn: pProgress } = require("p-progress")
+const splitInteger = require("split-integer")
+const mergeOptions = require("merge-options")
+const cumulativeSum = require("cumulative-sum")
 
-module.exports = (input, { postfix = "rainbows" } = {}) => {
-	if (typeof input !== "string") {
-		throw new TypeError(`Expected a string, got ${typeof input}`)
+const toByteRanges = array => array.map((bytes, index, byteParts) => {
+	if (index === 0) {
+		return [0, bytes - 1]
 	}
 
-	return `${input} & ${postfix}`
-}
+	if (index === byteParts.length - 1) {
+		return [byteParts[index - 1], bytes]
+	}
+
+	return [byteParts[index - 1], bytes - 1]
+})
+
+module.exports = pProgress(async (url, options, progress) => {
+	if (!progress) {
+		progress = options
+		options = {}
+	}
+
+	options = {
+		threads: os.cpus().length,
+		...options
+	}
+
+	const { headers } = await got.head(url, options)
+	const contentLength = Number(headers["content-length"])
+
+	const currentDownloadProgress = new Array(options.threads)
+
+	const result = Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => {
+		const requestStream = got.stream(url, mergeOptions({
+			headers: {
+				range: `bytes=${startByte}-${endByte}`
+			}
+		}, options))
+
+		requestStream.on("downloadProgress", ({ percent }) => {
+			currentDownloadProgress[threadId] = percent
+			progress(totalled(currentDownloadProgress) / options.threads)
+		})
+
+		requestStream.on("error", error => {
+			throw error
+		})
+
+		const response = await pEvent(requestStream, "response")
+
+		const [result] = await Promise.all([getStream.buffer(requestStream), response])
+		return result
+	}))
+
+	return result
+})

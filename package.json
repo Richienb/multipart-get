@@ -1,8 +1,8 @@
 {
-	"name": "the-module",
+	"name": "multipart-get",
 	"version": "0.0.0",
-	"description": "My awesome module.",
-	"repository": "https://github.com/Richienb/the-module.git",
+	"description": "Run multiple http requests in parallel.",
+	"repository": "https://github.com/Richienb/multipart-get.git",
 	"author": "Richie Bendall <richiebendall@gmail.com>",
 	"license": "MIT",
 	"main": "index.js",
@@ -11,17 +11,37 @@
 		"index.d.ts"
 	],
 	"engines": {
-		"node": ">=10"
+		"node": ">=10.19"
 	},
 	"scripts": {
 		"lint": "xo",
 		"test": "xo && ava"
 	},
-	"keywords": [],
-	"dependencies": {},
+	"keywords": [
+		"http",
+		"get",
+		"multipart",
+		"mutlithreaded",
+		"parallel",
+		"download",
+		"fetch",
+		"cpu"
+	],
+	"dependencies": {
+		"cumulative-sum": "^1.0.0",
+		"get-stream": "^6.0.0",
+		"got": "^11.7.0",
+		"merge-options": "^3.0.3",
+		"p-event": "^4.2.0",
+		"p-map": "^4.0.0",
+		"p-progress": "^0.4.2",
+		"split-integer": "^1.0.0",
+		"totalled": "^1.0.0"
+	},
 	"devDependencies": {
 		"ava": "^3.13.0",
 		"eslint-config-richienb": "^0.5.0",
+		"pify": "^5.0.0",
 		"xo": "^0.33.1"
 	},
 	"xo": {

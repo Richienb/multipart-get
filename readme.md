@@ -1,41 +1,62 @@
-# the-module [![Travis CI Build Status](https://img.shields.io/travis/com/Richienb/the-module/master.svg?style=for-the-badge)](https://travis-ci.com/Richienb/the-module)
+# multipart-get [![Travis CI Build Status](https://img.shields.io/travis/com/Richienb/multipart-get/master.svg?style=for-the-badge)](https://travis-ci.com/Richienb/multipart-get)
 
-My awesome module.
+Run multiple http requests in parallel. Useful for downloading a large file with higher speeds.
 
-[![NPM Badge](https://nodei.co/npm/the-module.png)](https://npmjs.com/package/the-module)
+[![NPM Badge](https://nodei.co/npm/multipart-get.png)](https://npmjs.com/package/multipart-get)
 
 ## Install
 
 ```sh
-npm install the-module
+npm install multipart-get
 ```
 
 ## Usage
 
 ```js
-const theModule = require("the-module")
+const { promises: fs } = require("fs")
+const multipartGet = require("multipart-get")
 
-theModule("unicorns")
-//=> "unicorns & rainbows"
+await fs.writeFile("unicorn.png", await multipartGet("https://example.com/unicorn.png"))
 ```
 
 ## API
 
-### theModule(input, options?)
+### multipartGet(url, options?)
 
-#### input
+Returns a promise which resolves with a buffer.
+
+#### url
 
 Type: `string`
 
-Lorem ipsum.
+The url to send the http requests to.
 
 #### options
 
 Type: `object`
 
-##### postfix
+Same options as [`got`](Same options as [`got`](https://github.com/sindresorhus/got#options)) in addition to the following:
 
-Type: `string`\
-Default: `rainbows`
+##### threads
 
-Lorem ipsum.
+Type: `number`\
+Default: Amount of cpu cores
+
+The number of request threads to use in parallel.
+
+### Progress updates
+
+You can call `.onProgress` on the resulting promise and provide it with a callback to receive progress updates on the http request. The callback will be called with a float between `0` and `1` representing the completion percentage.
+
+```js
+const { promises: fs } = require("fs")
+const multipartGet = require("multipart-get")
+
+const request = multipartGet("https://example.com/unicorn.png")
+
+request.onProgress(percent => {
+	console.log(`The request is now ${Math.round(percent * 100)}% complete.`)
+})
+
+await fs.writeFile("unicorn.png", await request)
+```

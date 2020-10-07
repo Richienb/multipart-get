@@ -1,13 +1,12 @@
 const test = require("ava")
-const theModule = require(".")
+const pify = require("pify")
+const multipartGet = require(".")
 
-test("main", t => {
-	t.throws(() => {
-		theModule(123)
-	}, {
-		instanceOf: TypeError,
-		message: "Expected a string, got number"
-	})
+test("main", async t => {
+	const request = multipartGet("https://source.unsplash.com/random")
 
-	t.is(theModule("unicorns"), "unicorns & rainbows")
+	const progressEventData = await pify(request.onProgress, { errorFirst: false }).bind(request)()
+
+	t.is(typeof progressEventData, "number")
+	t.true(Buffer.isBuffer(await request))
 })
