@@ -1,6 +1,6 @@
 {
 	"name": "multipart-get",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"description": "Run multiple http requests in parallel.",
 	"repository": "https://github.com/Richienb/multipart-get.git",
 	"author": "Richie Bendall <richiebendall@gmail.com>",
