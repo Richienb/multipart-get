@@ -38,7 +38,7 @@ module.exports = pProgress(async (url, options, progress) => {
 
 	const currentDownloadProgress = new Array(options.threads)
 
-	const result = Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => {
+	return Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => {
 		const requestStream = got.stream(url, mergeOptions({
 			headers: {
 				range: `bytes=${startByte}-${endByte}`
@@ -59,6 +59,4 @@ module.exports = pProgress(async (url, options, progress) => {
 		const [result] = await Promise.all([getStream.buffer(requestStream), response])
 		return result
 	}))
-
-	return result
 })
