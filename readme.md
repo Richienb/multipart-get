@@ -35,7 +35,7 @@ The url to send the http requests to.
 
 Type: `object`
 
-Same options as [`got`](Same options as [`got`](https://github.com/sindresorhus/got#options)) in addition to the following:
+Same options as [`got`](https://github.com/sindresorhus/got#options) in addition to the following:
 
 ##### threads
 
