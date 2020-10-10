@@ -51,6 +51,7 @@ module.exports = pProgress(async (url, options, progress) => {
 		})
 
 		requestStream.on("error", error => {
+			// TODO: Catch the error and automatically try to redownload.
 			throw error
 		})
 
