@@ -9,6 +9,7 @@ const { fn: pProgress } = require("p-progress")
 const splitInteger = require("split-integer")
 const mergeOptions = require("merge-options")
 const cumulativeSum = require("cumulative-sum")
+const pRetry = require("p-retry")
 
 const toByteRanges = array => array.map((bytes, index, byteParts) => {
 	if (index === 0) {
@@ -30,6 +31,7 @@ module.exports = pProgress(async (url, options, progress) => {
 
 	options = {
 		threads: os.cpus().length,
+		retries: 3,
 		...options
 	}
 
@@ -38,7 +40,7 @@ module.exports = pProgress(async (url, options, progress) => {
 
 	const currentDownloadProgress = new Array(options.threads)
 
-	return Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => {
+	return Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => pRetry(async () => {
 		const requestStream = got.stream(url, mergeOptions({
 			headers: {
 				range: `bytes=${startByte}-${endByte}`
@@ -51,7 +53,6 @@ module.exports = pProgress(async (url, options, progress) => {
 		})
 
 		requestStream.on("error", error => {
-			// TODO: Catch the error and automatically try to redownload.
 			throw error
 		})
 
@@ -59,5 +60,7 @@ module.exports = pProgress(async (url, options, progress) => {
 
 		const [result] = await Promise.all([getStream.buffer(requestStream), response])
 		return result
-	}))
+	}, {
+		retries: options.retries
+	})))
 })

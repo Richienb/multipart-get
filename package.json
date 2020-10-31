@@ -35,6 +35,7 @@
 		"p-event": "^4.2.0",
 		"p-map": "^4.0.0",
 		"p-progress": "^0.4.2",
+		"p-retry": "^4.2.0",
 		"split-integer": "^1.0.0",
 		"totalled": "^1.0.0"
 	},

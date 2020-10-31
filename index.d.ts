@@ -9,6 +9,13 @@ declare namespace multipartGet {
 		@default Amount of cpu cores
 		*/
 		threads?: number
+
+		/**
+		The maximum amount of times to try downloading each chunk of data before failing.
+
+		@default 3
+		*/
+		retries?: number
 	}
 }
 

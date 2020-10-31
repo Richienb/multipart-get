@@ -44,6 +44,13 @@ Default: Amount of cpu cores
 
 The number of request threads to use in parallel.
 
+##### retries
+
+Type: `number`\
+Default: `3`
+
+The maximum amount of times to try downloading each chunk of data before failing.
+
 ### Progress updates
 
 You can call `.onProgress` on the resulting promise and provide it with a callback to receive progress updates on the http request. The callback will be called with a float between `0` and `1` representing the completion percentage.
