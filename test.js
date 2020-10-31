@@ -1,5 +1,6 @@
 const test = require("ava")
 const pify = require("pify")
+const imageType = require("image-type")
 const multipartGet = require(".")
 
 test("main", async t => {
@@ -8,5 +9,5 @@ test("main", async t => {
 	const progressEventData = await pify(request.onProgress, { errorFirst: false }).bind(request)()
 
 	t.is(typeof progressEventData, "number")
-	t.true(Buffer.isBuffer(await request))
+	t.is(typeof imageType(await request), "object")
 })

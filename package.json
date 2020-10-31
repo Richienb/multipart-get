@@ -42,6 +42,7 @@
 	"devDependencies": {
 		"ava": "^3.13.0",
 		"eslint-config-richienb": "^0.5.0",
+		"image-type": "^4.1.0",
 		"pify": "^5.0.0",
 		"xo": "^0.33.1"
 	},
