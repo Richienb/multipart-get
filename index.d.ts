@@ -34,7 +34,7 @@ await fs.writeFile("unicorn.png", await multipartGet("https://example.com/unicor
 */
 declare function multipartGet(url: string, options?: multipartGet.Options): Promise<Buffer> & {
 	/**
-	The provided callback will be called for each progress update for the http request. The callback will be called with a float between `0` and `1` representing the completion percentage.
+	The provided callback will be called for each progress update for the http request. The callback will be called with a decimal between `0` and `1` representing the completion percentage.
 	*/
 	onProgress: (progress: (progress: number) => void) => void
 }
