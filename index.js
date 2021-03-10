@@ -2,8 +2,7 @@
 const os = require("os")
 const got = require("got")
 const pMap = require("p-map")
-const totalled = require("totalled")
-const pEvent = require("p-event")
+const average = require("math-avg")
 const getStream = require("get-stream")
 const { fn: pProgress } = require("p-progress")
 const splitInteger = require("split-integer")
@@ -23,25 +22,20 @@ const toByteRanges = array => array.map((bytes, index, byteParts) => {
 	return [byteParts[index - 1], bytes - 1]
 })
 
-module.exports = pProgress(async (url, options, progress) => {
-	if (!progress) {
-		progress = options
-		options = {}
-	}
-
+module.exports = (url, options) => pProgress(async progress => {
 	options = {
 		threads: os.cpus().length,
 		retries: 3,
 		...options
 	}
 
-	const { headers } = await got.head(url, options)
+	const { headers, url: finalUrl } = await got.head(url, options)
 	const contentLength = Number(headers["content-length"])
 
-	const currentDownloadProgress = new Array(options.threads)
+	const currentDownloadProgress = Array.from({ length: options.threads }).fill(0)
 
 	return Buffer.concat(await pMap(toByteRanges(cumulativeSum(splitInteger(contentLength, options.threads))), async ([startByte, endByte], threadId) => pRetry(async () => {
-		const requestStream = got.stream(url, mergeOptions({
+		const requestStream = got.stream(finalUrl, mergeOptions({
 			headers: {
 				range: `bytes=${startByte}-${endByte}`
 			}
@@ -49,18 +43,17 @@ module.exports = pProgress(async (url, options, progress) => {
 
 		requestStream.on("downloadProgress", ({ percent }) => {
 			currentDownloadProgress[threadId] = percent
-			progress(totalled(currentDownloadProgress) / options.threads)
+			progress(average(currentDownloadProgress))
 		})
 
 		requestStream.on("error", error => {
 			throw error
 		})
 
-		const response = await pEvent(requestStream, "response")
-
-		const [result] = await Promise.all([getStream.buffer(requestStream), response])
-		return result
+		return getStream.buffer(requestStream)
 	}, {
 		retries: options.retries
-	})))
-})
+	}), {
+		concurrency: options.threads
+	}))
+})()

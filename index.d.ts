@@ -1,5 +1,5 @@
 /// <reference types="node"/>
-import { Options as GotOptions } from "got" // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Options as GotOptions } from "got"
 
 declare namespace multipartGet {
 	export interface Options extends GotOptions {
